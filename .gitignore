@@ -60,5 +60,15 @@ next-env.d.ts
 prompts/
 repomix-output.xml
 
+# testing
+/coverage
+/test-results/
+/playwright-report/
+/.playwright/
+tests/e2e/.auth/
+
 # clerk configuration (can include secrets)
 /.clerk/
+
+.vercel
+.env*.local

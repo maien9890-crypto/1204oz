@@ -147,6 +147,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_STORAGE_BUCKET=uploads
+
+# Toss Payments (테스트 모드)
+NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY=
+TOSS_PAYMENTS_SECRET_KEY=
 ```
 
 ## Development Guidelines
@@ -191,20 +195,39 @@ const searchParams = await props.searchParams;
 // 'use client'는 필요한 경우에만
 ```
 
+## Error Handling
+
+**중요**: 오류 처리 시 반드시 [docs/ERRORS.md](docs/ERRORS.md)를 참조하세요.
+
+### 기본 원칙
+
+- **에러 객체 직렬화**: `console.error`에 에러 객체를 직접 전달하지 말고, 필요한 속성만 추출
+- **공개 데이터 접근**: 인증이 필요 없는 데이터는 공개 클라이언트 사용
+- **환경변수 검증**: Supabase 클라이언트 생성 전 환경변수 존재 여부 확인
+
+### Supabase 클라이언트 선택
+
+- **공개 데이터** (상품 목록, 상품 상세): `createPublicSupabaseClient()` 사용
+- **인증 필요 데이터** (장바구니, 주문): `createClerkSupabaseClient()` 사용
+
+자세한 내용은 [.cursor/rules/common/error-handling.mdc](.cursor/rules/common/error-handling.mdc) 참조
+
 ## Key Files
 
 - `middleware.ts`: Clerk 미들웨어 (인증 라우트 보호)
 - `app/layout.tsx`: RootLayout with ClerkProvider + SyncUserProvider
 - `lib/supabase.ts`: 레거시 Supabase 클라이언트 (사용 지양, 새 파일들 사용)
 - `components.json`: shadcn/ui 설정
+- `docs/ERRORS.md`: 오류 해결 가이드 (필수 참조)
 
 ## Additional Cursor Rules
 
 프로젝트에는 다음 Cursor 규칙들이 있습니다:
 
+- `.cursor/rules/common/error-handling.mdc`: 오류 처리 및 디버깅 가이드라인 (필수 참조)
 - `.cursor/rules/web/nextjs-convention.mdc`: Next.js 컨벤션
 - `.cursor/rules/web/design-rules.mdc`: UI/UX 디자인 가이드
 - `.cursor/rules/web/playwright-test-guide.mdc`: 테스트 가이드
 - `.cursor/rules/supabase/`: Supabase 관련 규칙들
 
-주요 원칙은 이 CLAUDE.md에 통합되어 있으나, 세부사항은 해당 파일들 참고.
+주요 원칙은 이 AGENTS.md에 통합되어 있으나, 세부사항은 해당 파일들 참고.

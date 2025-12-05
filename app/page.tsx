@@ -1,40 +1,65 @@
+/**
+ * @file page.tsx
+ * @description 홈페이지
+ *
+ * 프로모션 배너, 카테고리 섹션, 인기 상품 미리보기를 표시
+ */
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { RiSupabaseFill } from "react-icons/ri";
+import { PromoBanner } from "@/components/PromoBanner";
+import { CategorySection } from "@/components/CategorySection";
+import { ProductCard } from "@/components/ProductCard";
+import { getProductsWithFilters } from "@/lib/utils/products";
 
-export default function Home() {
+async function getFeaturedProducts() {
+  try {
+    // 홈페이지에서는 최신 상품 8개만 가져오기
+    const { products } = await getProductsWithFilters({
+      sort: "latest",
+      page: 1,
+    });
+
+    // 최대 8개만 반환
+    return products.slice(0, 8);
+  } catch (error) {
+    console.error("Error fetching featured products:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return [];
+  }
+}
+
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
-    <main className="min-h-[calc(100vh-80px)] flex items-center px-8 py-16 lg:py-24">
-      <section className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start lg:items-center">
-        {/* 좌측: 환영 메시지 */}
-        <div className="flex flex-col gap-8">
-          <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-            SaaS 앱 템플릿에 오신 것을 환영합니다
-          </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
-            Next.js, Shadcn, Clerk, Supabase, TailwindCSS로 구동되는 완전한
-            기능의 템플릿으로 다음 프로젝트를 시작하세요.
-          </p>
+    <main className="min-h-[calc(100vh-80px)]">
+      {/* 프로모션 배너 */}
+      <PromoBanner />
+
+      {/* 카테고리 섹션 */}
+      <CategorySection />
+
+      {/* MD's Pick 섹션 */}
+      <section className="w-full max-w-7xl mx-auto px-6 py-16">
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold tracking-tight mb-2">MD's Pick</h2>
+          <p className="text-muted-foreground">에디터가 선정한 추천 상품</p>
         </div>
 
-        {/* 우측: 버튼 두 개 세로 정렬 */}
-        <div className="flex flex-col gap-6">
-          <Link href="/storage-test" className="w-full">
-            <Button className="w-full h-28 flex items-center justify-center gap-4 text-xl shadow-lg hover:shadow-xl transition-shadow">
-              <RiSupabaseFill className="w-8 h-8" />
-              <span>Storage 파일 업로드 테스트</span>
-            </Button>
-          </Link>
-          <Link href="/auth-test" className="w-full">
-            <Button
-              className="w-full h-28 flex items-center justify-center gap-4 text-xl shadow-lg hover:shadow-xl transition-shadow"
-              variant="outline"
-            >
-              <RiSupabaseFill className="w-8 h-8" />
-              <span>Clerk + Supabase 인증 연동</span>
-            </Button>
-          </Link>
-        </div>
+        {featuredProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 text-muted-foreground">
+            <p className="text-lg">표시할 상품이 없습니다.</p>
+          </div>
+        )}
       </section>
     </main>
   );

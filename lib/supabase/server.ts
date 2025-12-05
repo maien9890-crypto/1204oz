@@ -27,7 +27,13 @@ export function createClerkSupabaseClient() {
 
   return createClient(supabaseUrl, supabaseKey, {
     async accessToken() {
-      return (await auth()).getToken();
+      try {
+        const token = await (await auth()).getToken();
+        return token;
+      } catch (error) {
+        // 인증이 필요한 경우가 아닐 때는 null 반환 (공개 데이터 접근)
+        return null;
+      }
     },
   });
 }
